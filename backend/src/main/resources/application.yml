@@ -1,0 +1,61 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: consulta-sri-ant
+
+  # ── Redis Cloud (Upstash) ─────────────────────────────────────
+  data:
+    redis:
+      host: eager-tuna-169089.upstash.io
+      port: 6379
+      password: ggAAAAAAApSBAAIgcDKT38rUTHUqS_OTm4mFeLlNqXELJHZpAEcn1KrlAVL0Dg
+      ssl:
+        enabled: true
+
+  # ── Jackson ──────────────────────────────────────────────────
+  jackson:
+    default-property-inclusion: non_null
+
+# ── URLs de los servicios externos ─────────────────────────────
+external:
+  sri:
+    catastro:
+      base-url: https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/ConsolidadoContribuyente
+      existe-ruc: /existePorNumeroRuc?numeroRuc=
+      obtener-ruc: /obtenerPorNumerosRuc?&ruc=
+    vehiculo:
+      base-url: https://srienlinea.sri.gob.ec/sri-matriculacion-vehicular-recaudacion-servicio-internet/rest/BaseVehiculo
+      obtener-placa: /obtenerPorNumeroPlacaOPorNumeroCampvOPorNumeroCpn?numeroPlacaCampvCpn=
+  ant:
+    base-url: https://consultaweb.ant.gob.ec/PortalWEB/paginas/clientes
+    citaciones: /clp_grid_citaciones.jsp?ps_tipo_identificacion=CED&ps_identificacion={cedula}&ps_placa={placa}
+
+# ── Caché de Puntos ────────────────────────────────────────────
+cache:
+  puntos:
+    soft-ttl-hours: 24       # Dato fresco: no llama a la ANT
+    hard-ttl-hours: 168      # 7 días: Redis borra el dato
+
+# ── Resilience4j Circuit Breaker ───────────────────────────────
+resilience4j:
+  circuitbreaker:
+    instances:
+      antService:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 60
+        waitDurationInOpenState: 120s
+        permittedNumberOfCallsInHalfOpenState: 1
+        slidingWindowType: COUNT_BASED
+
+# ── Timeouts para WebClient ────────────────────────────────────
+webclient:
+  connect-timeout-ms: 5000
+  read-timeout-ms: 10000
+
+# ── CORS ───────────────────────────────────────────────────────
+cors:
+  allowed-origins: http://localhost:5173
