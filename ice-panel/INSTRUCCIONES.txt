@@ -1,0 +1,4 @@
+# Guarda aqui las capturas de pantalla de IcePanel:
+# - nivel-1-contexto.png
+# - nivel-2-contenedores.png
+# - nivel-3-componentes.png
